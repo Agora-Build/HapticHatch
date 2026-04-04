@@ -7,8 +7,9 @@ sdkconfig.old
 dependencies.lock
 managed_components/
 
-# IDE
+# IDE / language server caches
 .vscode/
 .idea/
+.cache/
 *.swp
 *~

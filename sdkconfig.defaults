@@ -1,3 +1,8 @@
+# Forward declaration — defined in components/sensor/Kconfig (Task 2)
 CONFIG_SENSOR_SAMPLE_RATE_HZ=100
+
+# Defined in main/Kconfig.projbuild
 CONFIG_HAPTIC_QUEUE_DEPTH=4
+
+# Forward declaration — defined in components/rtsa_transport/Kconfig (Task 4)
 CONFIG_RTSA_CHANNEL_ID=""

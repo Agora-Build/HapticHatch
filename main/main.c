@@ -51,8 +51,11 @@ void app_main(void) {
     transport_set_rx_callback(on_transport_rx);
     ESP_ERROR_CHECK(transport_init());
 
-    xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 5, NULL);
-    xTaskCreate(haptic_task,  "haptic_task", 4096, NULL, 5, NULL);
+    BaseType_t rc;
+    rc = xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 5, NULL);
+    configASSERT(rc == pdPASS);
+    rc = xTaskCreate(haptic_task, "haptic_task", 4096, NULL, 6, NULL);
+    configASSERT(rc == pdPASS);
 
     ESP_LOGI(TAG, "HapticHatch started — sample_rate=%d Hz queue_depth=%d",
              CONFIG_SENSOR_SAMPLE_RATE_HZ, CONFIG_HAPTIC_QUEUE_DEPTH);

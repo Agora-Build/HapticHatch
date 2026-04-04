@@ -1,0 +1,8 @@
+menu "Sensor"
+    config SENSOR_SAMPLE_RATE_HZ
+        int "Force sensor polling rate (Hz)"
+        default 100
+        range 10 1000
+        help
+            How often the force sensor is sampled per second.
+endmenu

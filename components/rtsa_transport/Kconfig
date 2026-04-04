@@ -1,0 +1,8 @@
+menu "RTSA Transport"
+    config RTSA_CHANNEL_ID
+        string "RTSA channel ID"
+        default ""
+        help
+            Channel identifier used by the RTSA SDK to pair two devices.
+            Leave empty until the SDK is integrated.
+endmenu

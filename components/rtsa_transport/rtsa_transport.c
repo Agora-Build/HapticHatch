@@ -3,6 +3,7 @@
 #include "sdkconfig.h"
 
 static const char *TAG = "rtsa_transport";
+/* TODO: protect with mutex when real RTSA SDK receive thread is introduced */
 static transport_rx_cb_t s_rx_cb = NULL;
 
 esp_err_t transport_init(void) {

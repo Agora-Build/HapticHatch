@@ -1,0 +1,8 @@
+menu "HapticHatch"
+    config HAPTIC_QUEUE_DEPTH
+        int "Haptic receive queue depth"
+        default 4
+        help
+            FreeRTOS queue depth for incoming haptic packets.
+            Oldest packets are dropped when full to maintain low latency.
+endmenu

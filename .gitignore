@@ -13,3 +13,8 @@ managed_components/
 .cache/
 *.swp
 *~
+
+# Per-component test builds
+components/**/test/build/
+components/**/test/sdkconfig
+components/**/test/sdkconfig.old

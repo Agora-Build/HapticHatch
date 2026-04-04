@@ -21,12 +21,13 @@ static void sensor_task(void *arg) {
     const TickType_t period_ticks =
         pdMS_TO_TICKS(1000 / CONFIG_SENSOR_SAMPLE_RATE_HZ);
     haptic_packet_t pkt;
+    TickType_t last_wake = xTaskGetTickCount();
 
     while (1) {
         pkt.timestamp_ms = (uint32_t)(esp_timer_get_time() / 1000ULL);
         pkt.force        = sensor_read();
         transport_send(&pkt);
-        vTaskDelay(period_ticks);
+        vTaskDelayUntil(&last_wake, period_ticks);
     }
 }
 

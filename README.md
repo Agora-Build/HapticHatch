@@ -120,12 +120,12 @@ idf.py -p /dev/ttyUSB1 monitor
 
 **device_a** (transmitting to device_b, receiving from device_b):
 ```
-I (...) rtm_demo: Signaling login success uid=device_a
-I (...) rtm_demo: Starting 100 Hz Signaling sender
-I (...) rtm_demo: TX seq=1    ts=5080 ms  force=0.57
-I (...) rtm_demo: TX seq=2    ts=5090 ms  force=0.59
+I (...) signaling: Signaling login success uid=device_a
+I (...) signaling: Starting 100 Hz Signaling sender
+I (...) signaling: TX seq=1    ts=5080 ms  force=0.57
+I (...) signaling: TX seq=2    ts=5090 ms  force=0.59
 ...
-I (...) rtm_demo: RX from=device_b seq=1  ts=5150 ms  force=0.42
+I (...) signaling: RX from=device_b seq=1  ts=5150 ms  force=0.42
 ```
 
 Messages flow in both directions at **100 Hz**.

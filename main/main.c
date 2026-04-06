@@ -6,7 +6,7 @@
 #include "sensor.h"
 #include "haptic.h"
 #include "rtsa_transport.h"
-#include "rtm_demo.h"
+#include "signaling_demo.h"
 #include "sdkconfig.h"
 
 static const char *TAG = "app";
@@ -62,5 +62,5 @@ void app_main(void) {
     ESP_LOGI(TAG, "HapticHatch started — sample_rate=%d Hz queue_depth=%d",
              CONFIG_SENSOR_SAMPLE_RATE_HZ, CONFIG_HAPTIC_QUEUE_DEPTH);
 
-    rtm_demo_start();
+    signaling_demo_start();
 }

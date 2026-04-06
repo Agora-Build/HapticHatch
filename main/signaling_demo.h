@@ -7,4 +7,4 @@
  * Signaling login sequence before starting the sender.  app_main() can call
  * this and continue creating other tasks without waiting.
  */
-void rtm_demo_start(void);
+void signaling_demo_start(void);

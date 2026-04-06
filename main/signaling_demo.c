@@ -1,4 +1,4 @@
-#include "rtm_demo.h"
+#include "signaling_demo.h"
 
 #include "agora_rtc_api.h"
 #include "esp_event.h"
@@ -14,11 +14,11 @@
 
 #include <string.h>
 
-static const char *TAG = "rtm_demo";
+static const char *TAG = "signaling";
 
 /* EventGroup bits */
-#define WIFI_CONNECTED_BIT BIT0
-#define RTM_LOGGED_IN_BIT  BIT1
+#define WIFI_CONNECTED_BIT   BIT0
+#define SIGNALING_LOGGED_IN_BIT BIT1
 
 static EventGroupHandle_t s_events;
 
@@ -29,7 +29,7 @@ typedef struct {
     uint32_t seq;
     uint32_t timestamp_ms;
     float    force;
-} __attribute__((packed)) rtm_msg_t;
+} __attribute__((packed)) signaling_msg_t;
 
 /* ------------------------------------------------------------------ */
 /* WiFi                                                                 */
@@ -90,42 +90,42 @@ static const agora_rtc_event_handler_t s_rtc_handler = {
 /* ------------------------------------------------------------------ */
 /* Agora Signaling callbacks                                            */
 /* ------------------------------------------------------------------ */
-static void on_rtm_event(const char *rtm_uid, rtm_event_type_e event_type,
+static void on_rtm_event(const char *uid, rtm_event_type_e event_type,
                          rtm_err_code_e err_code)
 {
     if (event_type == RTM_EVENT_TYPE_LOGIN) {
         if (err_code == ERR_RTM_OK) {
-            ESP_LOGI(TAG, "Signaling login success uid=%s", rtm_uid);
-            xEventGroupSetBits(s_events, RTM_LOGGED_IN_BIT);
+            ESP_LOGI(TAG, "Signaling login success uid=%s", uid);
+            xEventGroupSetBits(s_events, SIGNALING_LOGGED_IN_BIT);
         } else {
-            ESP_LOGE(TAG, "Signaling login failed uid=%s err=%d", rtm_uid, err_code);
+            ESP_LOGE(TAG, "Signaling login failed uid=%s err=%d", uid, err_code);
         }
     } else if (event_type == RTM_EVENT_TYPE_KICKOFF) {
-        ESP_LOGW(TAG, "Signaling kicked off uid=%s err=%d", rtm_uid, err_code);
+        ESP_LOGW(TAG, "Signaling kicked off uid=%s err=%d", uid, err_code);
     }
 }
 
-static void on_rtm_data(const char *rtm_uid, const void *msg, size_t msg_len,
+static void on_rtm_data(const char *uid, const void *msg, size_t msg_len,
                         const char *custom_type)
 {
-    if (msg_len == sizeof(rtm_msg_t)) {
-        rtm_msg_t pkt;
+    if (msg_len == sizeof(signaling_msg_t)) {
+        signaling_msg_t pkt;
         memcpy(&pkt, msg, sizeof(pkt));
         ESP_LOGI(TAG, "RX from=%-12s seq=%-6u ts=%u ms force=%.3f type=%s",
-                 rtm_uid, (unsigned)pkt.seq, (unsigned)pkt.timestamp_ms,
+                 uid, (unsigned)pkt.seq, (unsigned)pkt.timestamp_ms,
                  pkt.force, custom_type ? custom_type : "");
     } else {
-        ESP_LOGW(TAG, "RX from=%s unexpected len=%u", rtm_uid, (unsigned)msg_len);
+        ESP_LOGW(TAG, "RX from=%s unexpected len=%u", uid, (unsigned)msg_len);
     }
 }
 
-static void on_rtm_send_data_result(const char *rtm_uid, uint32_t msg_id,
+static void on_rtm_send_data_result(const char *uid, uint32_t msg_id,
                                     rtm_msg_state_e state)
 {
     /* RTM_MSG_STATE_RECEIVED is the happy path; log anything else. */
     if (state != RTM_MSG_STATE_RECEIVED) {
         ESP_LOGW(TAG, "TX result to=%s msg_id=%u state=%d",
-                 rtm_uid, (unsigned)msg_id, state);
+                 uid, (unsigned)msg_id, state);
     }
 }
 
@@ -138,14 +138,14 @@ static const agora_rtm_handler_t s_rtm_handler = {
 /* ------------------------------------------------------------------ */
 /* Send task — 100 Hz; SDK caps at 60 qps                              */
 /* ------------------------------------------------------------------ */
-static void rtm_send_task(void *arg)
+static void signaling_send_task(void *arg)
 {
     const TickType_t period = pdMS_TO_TICKS(10); /* 100 Hz */
     TickType_t       last   = xTaskGetTickCount();
     uint32_t         seq    = 0;
 
     while (1) {
-        rtm_msg_t msg = {
+        signaling_msg_t msg = {
             .seq          = seq,
             .timestamp_ms = (uint32_t)(esp_timer_get_time() / 1000ULL),
             /* force ramps 0.00 → 0.99 cyclically */
@@ -172,7 +172,7 @@ static void rtm_send_task(void *arg)
 /* ------------------------------------------------------------------ */
 /* Init task (runs once, then deletes itself)                           */
 /* ------------------------------------------------------------------ */
-static void rtm_demo_init_task(void *arg)
+static void signaling_demo_init_task(void *arg)
 {
     /* 1. WiFi */
     wifi_init();
@@ -202,12 +202,12 @@ static void rtm_demo_init_task(void *arg)
     }
 
     ESP_LOGI(TAG, "Waiting for Signaling login...");
-    xEventGroupWaitBits(s_events, RTM_LOGGED_IN_BIT,
+    xEventGroupWaitBits(s_events, SIGNALING_LOGGED_IN_BIT,
                         pdFALSE, pdTRUE, portMAX_DELAY);
 
     /* 4. Start 100 Hz send task */
     ESP_LOGI(TAG, "Starting 100 Hz Signaling sender (SDK cap=60 qps — rate-limit warnings expected)");
-    BaseType_t rc = xTaskCreate(rtm_send_task, "rtm_send", 4096, NULL, 5, NULL);
+    BaseType_t rc = xTaskCreate(signaling_send_task, "sig_send", 4096, NULL, 5, NULL);
     configASSERT(rc == pdPASS);
 
     vTaskDelete(NULL);
@@ -216,11 +216,11 @@ static void rtm_demo_init_task(void *arg)
 /* ------------------------------------------------------------------ */
 /* Public API                                                           */
 /* ------------------------------------------------------------------ */
-void rtm_demo_start(void)
+void signaling_demo_start(void)
 {
     s_events = xEventGroupCreate();
     configASSERT(s_events);
 
-    BaseType_t rc = xTaskCreate(rtm_demo_init_task, "rtm_init", 4096, NULL, 4, NULL);
+    BaseType_t rc = xTaskCreate(signaling_demo_init_task, "sig_init", 4096, NULL, 4, NULL);
     configASSERT(rc == pdPASS);
 }

@@ -6,7 +6,7 @@ menu "HapticHatch"
             FreeRTOS queue depth for incoming haptic packets.
             Oldest packets are dropped when full to maintain low latency.
 
-    menu "RTM Demo"
+    menu "Signaling Demo"
         config AGORA_APP_ID
             string "Agora App ID"
             default ""
@@ -14,22 +14,22 @@ menu "HapticHatch"
                 Agora project App ID from the Agora Console.
 
         config AGORA_RTM_LOCAL_UID
-            string "Local RTM UID"
+            string "Local Signaling UID"
             default "device_a"
             help
-                RTM user identity for this device (max 64 chars).
+                Signaling user identity for this device (max 64 chars).
 
         config AGORA_RTM_REMOTE_UID
-            string "Remote RTM UID"
+            string "Remote Signaling UID"
             default "device_b"
             help
-                RTM UID of the peer device that will receive messages.
+                Signaling UID of the peer device that will receive messages.
 
         config AGORA_RTM_TOKEN
-            string "RTM token (leave empty to disable token auth)"
+            string "Signaling token (leave empty to disable token auth)"
             default ""
             help
-                RTM authentication token from your token server.
+                Signaling authentication token from your token server.
                 Leave empty when token auth is disabled in the Agora Console.
 
         config DEMO_WIFI_SSID

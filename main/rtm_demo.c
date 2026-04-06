@@ -88,20 +88,20 @@ static const agora_rtc_event_handler_t s_rtc_handler = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Agora RTM callbacks                                                  */
+/* Agora Signaling callbacks                                            */
 /* ------------------------------------------------------------------ */
 static void on_rtm_event(const char *rtm_uid, rtm_event_type_e event_type,
                          rtm_err_code_e err_code)
 {
     if (event_type == RTM_EVENT_TYPE_LOGIN) {
         if (err_code == ERR_RTM_OK) {
-            ESP_LOGI(TAG, "RTM login success uid=%s", rtm_uid);
+            ESP_LOGI(TAG, "Signaling login success uid=%s", rtm_uid);
             xEventGroupSetBits(s_events, RTM_LOGGED_IN_BIT);
         } else {
-            ESP_LOGE(TAG, "RTM login failed uid=%s err=%d", rtm_uid, err_code);
+            ESP_LOGE(TAG, "Signaling login failed uid=%s err=%d", rtm_uid, err_code);
         }
     } else if (event_type == RTM_EVENT_TYPE_KICKOFF) {
-        ESP_LOGW(TAG, "RTM kicked off uid=%s err=%d", rtm_uid, err_code);
+        ESP_LOGW(TAG, "Signaling kicked off uid=%s err=%d", rtm_uid, err_code);
     }
 }
 
@@ -136,7 +136,7 @@ static const agora_rtm_handler_t s_rtm_handler = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Send task — attempts 100 Hz; SDK caps at 60 qps                     */
+/* Send task — 100 Hz; SDK caps at 60 qps                              */
 /* ------------------------------------------------------------------ */
 static void rtm_send_task(void *arg)
 {
@@ -190,7 +190,7 @@ static void rtm_demo_init_task(void *arg)
     }
     ESP_LOGI(TAG, "Agora SDK %s initialized", agora_rtc_get_version());
 
-    /* 3. RTM login (token=NULL disables token auth) */
+    /* 3. Signaling login (token=NULL disables token auth) */
     const char *token = (strlen(CONFIG_AGORA_RTM_TOKEN) > 0)
                         ? CONFIG_AGORA_RTM_TOKEN : NULL;
     ret = agora_rtc_login_rtm(CONFIG_AGORA_RTM_LOCAL_UID, token, &s_rtm_handler);
@@ -201,12 +201,12 @@ static void rtm_demo_init_task(void *arg)
         return;
     }
 
-    ESP_LOGI(TAG, "Waiting for RTM login...");
+    ESP_LOGI(TAG, "Waiting for Signaling login...");
     xEventGroupWaitBits(s_events, RTM_LOGGED_IN_BIT,
                         pdFALSE, pdTRUE, portMAX_DELAY);
 
     /* 4. Start 100 Hz send task */
-    ESP_LOGI(TAG, "Starting 100 Hz RTM sender (SDK cap=60 qps — rate-limit warnings expected)");
+    ESP_LOGI(TAG, "Starting 100 Hz Signaling sender (SDK cap=60 qps — rate-limit warnings expected)");
     BaseType_t rc = xTaskCreate(rtm_send_task, "rtm_send", 4096, NULL, 5, NULL);
     configASSERT(rc == pdPASS);
 

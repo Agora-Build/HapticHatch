@@ -1,6 +1,6 @@
 # HapticHatch
 
-ESP32-S3 firmware that streams arbitrary binary data between two devices over [Agora Signaling](https://docs.agora.io/en/signaling/overview/product-overview) at **100 Hz** — demonstrating ultra-high-frequency, low-latency peer-to-peer messaging on embedded hardware.
+ESP32-S3 firmware demonstrating **high-frequency, high-resolution** data streaming between two devices over [Agora Signaling](https://docs.agora.io/en/signaling/overview/product-overview) at **100 Hz** — pushing the limits of low-latency peer-to-peer messaging on embedded hardware.
 
 ```
 Device A                                    Device B

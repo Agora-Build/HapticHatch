@@ -19,8 +19,8 @@ Device A                                    Device B
 
 - [ESP-IDF v5.2.x](https://docs.espressif.com/projects/esp-idf/en/v5.2.3/esp32s3/get-started/)
 - [AOSL](https://github.com/AgoraIO-Community/aosl) source tree checked out at `../aosl` (sibling of this repo)
-- [Agora account](https://console.agora.io) with Signaling enabled
-- [`atem`](https://github.com/Agora-Build/Atem) CLI for token generation
+- [Agora Account](https://console.agora.io) with Signaling enabled
+- [Atem](https://github.com/Agora-Build/Atem) CLI for token generation
 
 ## Repository layout
 

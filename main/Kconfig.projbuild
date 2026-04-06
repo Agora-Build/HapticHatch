@@ -13,19 +13,19 @@ menu "HapticHatch"
             help
                 Agora project App ID from the Agora Console.
 
-        config AGORA_RTM_LOCAL_UID
+        config AGORA_SIGNALING_LOCAL_UID
             string "Local Signaling UID"
             default "device_a"
             help
                 Signaling user identity for this device (max 64 chars).
 
-        config AGORA_RTM_REMOTE_UID
+        config AGORA_SIGNALING_REMOTE_UID
             string "Remote Signaling UID"
             default "device_b"
             help
                 Signaling UID of the peer device that will receive messages.
 
-        config AGORA_RTM_TOKEN
+        config AGORA_SIGNALING_TOKEN
             string "Signaling token (leave empty to disable token auth)"
             default ""
             help

@@ -47,9 +47,9 @@ Copy `sdkconfig.defaults` and fill in your credentials before building.
 # sdkconfig.defaults
 
 CONFIG_AGORA_APP_ID="<your-agora-app-id>"
-CONFIG_AGORA_RTM_TOKEN="<signaling-token-for-this-device>"
-CONFIG_AGORA_RTM_LOCAL_UID="device_a"   # identity of this device
-CONFIG_AGORA_RTM_REMOTE_UID="device_b"  # peer to send to / receive from
+CONFIG_AGORA_SIGNALING_TOKEN="<signaling-token-for-this-device>"
+CONFIG_AGORA_SIGNALING_LOCAL_UID="device_a"   # identity of this device
+CONFIG_AGORA_SIGNALING_REMOTE_UID="device_b"  # peer to send to / receive from
 CONFIG_DEMO_WIFI_SSID="<your-ssid>"
 CONFIG_DEMO_WIFI_PASSWORD="<your-password>"
 ```
@@ -84,9 +84,9 @@ idf.py build
 
 Set `sdkconfig.defaults`:
 ```ini
-CONFIG_AGORA_RTM_LOCAL_UID="device_a"
-CONFIG_AGORA_RTM_REMOTE_UID="device_b"
-CONFIG_AGORA_RTM_TOKEN="<device_a token>"
+CONFIG_AGORA_SIGNALING_LOCAL_UID="device_a"
+CONFIG_AGORA_SIGNALING_REMOTE_UID="device_b"
+CONFIG_AGORA_SIGNALING_TOKEN="<device_a token>"
 ```
 
 ```bash
@@ -97,9 +97,9 @@ rm sdkconfig && idf.py -p /dev/ttyUSB0 build flash
 
 Update `sdkconfig.defaults`:
 ```ini
-CONFIG_AGORA_RTM_LOCAL_UID="device_b"
-CONFIG_AGORA_RTM_REMOTE_UID="device_a"
-CONFIG_AGORA_RTM_TOKEN="<device_b token>"
+CONFIG_AGORA_SIGNALING_LOCAL_UID="device_b"
+CONFIG_AGORA_SIGNALING_REMOTE_UID="device_a"
+CONFIG_AGORA_SIGNALING_TOKEN="<device_b token>"
 ```
 
 ```bash

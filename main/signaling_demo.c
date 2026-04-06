@@ -152,7 +152,7 @@ static void signaling_send_task(void *arg)
             .force        = (float)(seq % 100) / 100.0f,
         };
 
-        int ret = agora_rtc_send_rtm_data(CONFIG_AGORA_RTM_REMOTE_UID,
+        int ret = agora_rtc_send_rtm_data(CONFIG_AGORA_SIGNALING_REMOTE_UID,
                                           &msg, sizeof(msg),
                                           seq, "haptic");
         if (ret == 0) {
@@ -191,9 +191,9 @@ static void signaling_demo_init_task(void *arg)
     ESP_LOGI(TAG, "Agora SDK %s initialized", agora_rtc_get_version());
 
     /* 3. Signaling login (token=NULL disables token auth) */
-    const char *token = (strlen(CONFIG_AGORA_RTM_TOKEN) > 0)
-                        ? CONFIG_AGORA_RTM_TOKEN : NULL;
-    ret = agora_rtc_login_rtm(CONFIG_AGORA_RTM_LOCAL_UID, token, &s_rtm_handler);
+    const char *token = (strlen(CONFIG_AGORA_SIGNALING_TOKEN) > 0)
+                        ? CONFIG_AGORA_SIGNALING_TOKEN : NULL;
+    ret = agora_rtc_login_rtm(CONFIG_AGORA_SIGNALING_LOCAL_UID, token, &s_rtm_handler);
     if (ret < 0) {
         ESP_LOGE(TAG, "agora_rtc_login_rtm failed err=%d (%s)",
                  ret, agora_rtc_err_2_str(ret));

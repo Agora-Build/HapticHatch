@@ -33,8 +33,8 @@ HapticHatch/
 │   └── sensor/          # Sensor driver (stub: sine wave at 100 Hz)
 ├── main/
 │   ├── main.c           # app_main: wires sensor → haptic, starts Signaling demo
-│   ├── rtm_demo.c       # WiFi init, Signaling login, 100 Hz TX task, RX callback
-│   └── rtm_demo.h
+│   ├── signaling_demo.c       # WiFi init, Signaling login, 100 Hz TX task, RX callback
+│   └── signaling_demo.h
 ├── partitions.csv        # 3 MB factory partition (required by SDK size)
 └── sdkconfig.defaults    # Target, flash, PSRAM, and credential defaults
 ```

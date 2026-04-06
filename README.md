@@ -2,10 +2,28 @@
 
 ESP32-S3 firmware demonstrating **high-frequency, high-resolution** data streaming between two devices over [Agora Signaling](https://docs.agora.io/en/signaling/overview/product-overview) at **100 Hz** — pushing the limits of low-latency peer-to-peer messaging on embedded hardware.
 
-```
-Device A                                    Device B
-  data ──► Signaling TX (100 Hz) ──────► Signaling RX ──► haptic
-  haptic ◄── Signaling RX         ◄────── Signaling TX (100 Hz) ◄── data
+```mermaid
+flowchart LR
+    subgraph A["Device A"]
+        A_data["data"]
+        A_haptic["haptic"]
+    end
+
+    subgraph Cloud["Agora Signaling"]
+        direction TB
+        TX_A["TX 100 Hz"]
+        RX_A["RX"]
+        TX_B["TX 100 Hz"]
+        RX_B["RX"]
+    end
+
+    subgraph B["Device B"]
+        B_haptic["haptic"]
+        B_data["data"]
+    end
+
+    A_data --> TX_A --> RX_B --> B_haptic
+    B_data --> TX_B --> RX_A --> A_haptic
 ```
 
 ## Hardware

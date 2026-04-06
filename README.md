@@ -128,7 +128,7 @@ I (...) rtm_demo: TX seq=2    ts=5090 ms  force=0.59
 I (...) rtm_demo: RX from=device_b seq=1  ts=5150 ms  force=0.42
 ```
 
-Messages flow in both directions at **100 Hz**. The SDK sustains up to 60 qps per peer; above that `TX FAIL` warnings appear but do not affect connectivity.
+Messages flow in both directions at **100 Hz**.
 
 ## Troubleshooting
 

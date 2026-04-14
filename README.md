@@ -176,12 +176,14 @@ idf.py -p /dev/ttyUSB1 monitor
 
 **device_a** (transmitting to device_b, receiving from device_b):
 ```
+I (...) signaling: Device ID=A → uid=device_a, peer=device_b
+I (...) signaling: Agora SDK 1.10.0 initialized
 I (...) signaling: Signaling login success uid=device_a
 I (...) signaling: Starting 100 Hz Signaling sender
-I (...) signaling: TX seq=1    ts=5080 ms  force=0.57
-I (...) signaling: TX seq=2    ts=5090 ms  force=0.59
+I (...) signaling: TX seq=1    ts=5080 ms force=0.57
+I (...) signaling: TX seq=2    ts=5090 ms force=0.59
 ...
-I (...) signaling: RX from=device_b seq=1  ts=5150 ms  force=0.42
+I (...) signaling: RX from=device_b   seq=1      ts=5150 ms force=0.420 type=haptic
 ```
 
 Messages flow in both directions at **100 Hz**.
@@ -191,7 +193,8 @@ Messages flow in both directions at **100 Hz**.
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `aosl_malloc N byte failed` on boot | PSRAM not enabled | Verify `CONFIG_SPIRAM=y` in sdkconfig.defaults, do `rm sdkconfig` before rebuild |
-| `Signaling login failed err=101` | Token expired or wrong UID | Regenerate token with `atem`, `rm sdkconfig`, rebuild |
+| `Signaling login failed err=101` with `GetAddrErr code=2010005` | Token expired, or the App ID's project doesn't have Signaling enabled, or a typo in the App ID | Confirm the active atem project has Signaling enabled (`atem project show`), regenerate tokens, `rm sdkconfig`, rebuild |
+| `Invalid CONFIG_AGORA_SIGNALING_DEVICE_ID="..."` followed by abort | `DEVICE_ID` is not `"A"` or `"B"` | Set `CONFIG_AGORA_SIGNALING_DEVICE_ID="A"` or `"B"` in sdkconfig.defaults |
 | `TX result state=2` warnings | Peer not yet online | Normal until both devices are logged in |
 | `idf.py: command not found` | IDF env not sourced | `source /path/to/esp-idf/export.sh` |
 | Build fails: `AOSL_LOG_ERR undeclared` | Outdated AOSL tree (pre-fix) | Update AOSL: `cd ../aosl && git pull` (fix is in AgoraIO-Community/aosl#3) |

@@ -72,11 +72,50 @@ CONFIG_DEMO_WIFI_PASSWORD="<your-password>"
 Signaling tokens expire after **3600 s**. Regenerate before each flash session:
 
 ```bash
-atem token rtm create --user-id device_a   # for the first device
-atem token rtm create --user-id device_b   # for the second device
+atem token rtm create --rtm-user-id device_a   # for the first device
+atem token rtm create --rtm-user-id device_b   # for the second device
 ```
 
 Paste each token into the matching `sdkconfig.defaults` before building.
+
+### How tokens and login work
+
+Each UID (`device_a`, `device_b`) needs its own token. The token is signed by Agora's backend using your App ID's secret and binds to `{App ID, UID, expiry}`. The device presents the token to Agora at boot time; only after login succeeds can it send or receive messages.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer
+    participant Atem as Atem CLI
+    participant Agora as Agora Cloud
+    participant Device as ESP32-S3
+
+    Note over Dev,Atem: 1. Create a Signaling token — once per UID
+    Dev->>Atem: atem token rtm create --rtm-user-id device_a
+    Note over Atem: Sign token locally with<br/>App ID + App Certificate + UID<br/>(TTL 3600 s)
+    Atem-->>Dev: Token string
+
+    Note over Dev,Device: 2. Embed token in firmware and flash
+    Dev->>Device: sdkconfig: APP_ID, UID, TOKEN → idf.py flash
+
+    Note over Device,Agora: 3. Boot-time login (signaling_demo.c)
+    Device->>Device: WiFi STA connect
+    Device->>Agora: agora_rtc_init(App ID)
+    Device->>Agora: agora_rtc_login_rtm(UID, token)
+    Agora->>Agora: Verify App ID + UID + signature + expiry
+    Agora-->>Device: on_rtm_event(LOGIN, OK)
+
+    Note over Device,Agora: 4. Messaging is now allowed
+    loop every 10 ms (100 Hz)
+        Device->>Agora: agora_rtc_send_rtm_data(peer_uid, payload)
+        Agora-->>Device: on_rtm_data(from_uid, payload)
+    end
+```
+
+**Common login failures**:
+- Token expired (TTL 3600 s) → regenerate with `atem`
+- UID in `CONFIG_AGORA_SIGNALING_LOCAL_UID` doesn't match the UID the token was issued for
+- App ID mismatch between the token and `CONFIG_AGORA_APP_ID`
 
 ## Building
 

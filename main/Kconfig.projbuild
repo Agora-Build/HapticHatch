@@ -13,24 +13,39 @@ menu "HapticHatch"
             help
                 Agora project App ID from the Agora Console.
 
-        config AGORA_SIGNALING_LOCAL_UID
-            string "Local Signaling UID"
+        config AGORA_SIGNALING_UID_A
+            string "Signaling UID A"
             default "device_a"
             help
-                Signaling user identity for this device (max 64 chars).
+                First peer identity (max 64 chars).
 
-        config AGORA_SIGNALING_REMOTE_UID
-            string "Remote Signaling UID"
+        config AGORA_SIGNALING_UID_B
+            string "Signaling UID B"
             default "device_b"
             help
-                Signaling UID of the peer device that will receive messages.
+                Second peer identity (max 64 chars).
 
-        config AGORA_SIGNALING_TOKEN
-            string "Signaling token (leave empty to disable token auth)"
+        config AGORA_SIGNALING_TOKEN_A
+            string "Signaling token for UID A"
             default ""
             help
-                Signaling authentication token from your token server.
-                Leave empty when token auth is disabled in the Agora Console.
+                Token issued for UID A. Leave empty to disable token auth.
+
+        config AGORA_SIGNALING_TOKEN_B
+            string "Signaling token for UID B"
+            default ""
+            help
+                Token issued for UID B. Leave empty to disable token auth.
+
+        config AGORA_SIGNALING_DEVICE_ID
+            string "Device ID for this board (A or B)"
+            default "A"
+            help
+                Identity this build takes at runtime.
+                  "A" → login as UID A, send to UID B
+                  "B" → login as UID B, send to UID A
+                Change to "B" between the two flashes so each board takes a
+                different identity; tokens do not need to be regenerated.
 
         config DEMO_WIFI_SSID
             string "WiFi SSID"

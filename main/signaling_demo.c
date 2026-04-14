@@ -16,6 +16,31 @@
 
 static const char *TAG = "signaling";
 
+/* Role selection — CONFIG_AGORA_SIGNALING_DEVICE_ID ("A" or "B") flips
+ * identity between two builds of the same firmware so each board can flash
+ * once without regenerating tokens. */
+static const char *s_local_uid;
+static const char *s_remote_uid;
+static const char *s_token;
+
+static void role_init(void)
+{
+    if (strcmp(CONFIG_AGORA_SIGNALING_DEVICE_ID, "A") == 0) {
+        s_local_uid  = CONFIG_AGORA_SIGNALING_UID_A;
+        s_remote_uid = CONFIG_AGORA_SIGNALING_UID_B;
+        s_token      = CONFIG_AGORA_SIGNALING_TOKEN_A;
+    } else if (strcmp(CONFIG_AGORA_SIGNALING_DEVICE_ID, "B") == 0) {
+        s_local_uid  = CONFIG_AGORA_SIGNALING_UID_B;
+        s_remote_uid = CONFIG_AGORA_SIGNALING_UID_A;
+        s_token      = CONFIG_AGORA_SIGNALING_TOKEN_B;
+    } else {
+        ESP_LOGE(TAG, "Invalid CONFIG_AGORA_SIGNALING_DEVICE_ID=\"%s\" — expected \"A\" or \"B\"",
+                 CONFIG_AGORA_SIGNALING_DEVICE_ID);
+        abort();
+    }
+    if (strlen(s_token) == 0) s_token = NULL;  /* disables token auth */
+}
+
 /* EventGroup bits */
 #define WIFI_CONNECTED_BIT   BIT0
 #define SIGNALING_LOGGED_IN_BIT BIT1
@@ -152,7 +177,7 @@ static void signaling_send_task(void *arg)
             .force        = (float)(seq % 100) / 100.0f,
         };
 
-        int ret = agora_rtc_send_rtm_data(CONFIG_AGORA_SIGNALING_REMOTE_UID,
+        int ret = agora_rtc_send_rtm_data(s_remote_uid,
                                           &msg, sizeof(msg),
                                           seq, "haptic");
         if (ret == 0) {
@@ -174,6 +199,11 @@ static void signaling_send_task(void *arg)
 /* ------------------------------------------------------------------ */
 static void signaling_demo_init_task(void *arg)
 {
+    /* 0. Select identity from CONFIG_AGORA_SIGNALING_DEVICE_ID */
+    role_init();
+    ESP_LOGI(TAG, "Device ID=%s → uid=%s, peer=%s",
+             CONFIG_AGORA_SIGNALING_DEVICE_ID, s_local_uid, s_remote_uid);
+
     /* 1. WiFi */
     wifi_init();
     ESP_LOGI(TAG, "Waiting for WiFi IP...");
@@ -190,10 +220,8 @@ static void signaling_demo_init_task(void *arg)
     }
     ESP_LOGI(TAG, "Agora SDK %s initialized", agora_rtc_get_version());
 
-    /* 3. Signaling login (token=NULL disables token auth) */
-    const char *token = (strlen(CONFIG_AGORA_SIGNALING_TOKEN) > 0)
-                        ? CONFIG_AGORA_SIGNALING_TOKEN : NULL;
-    ret = agora_rtc_login_rtm(CONFIG_AGORA_SIGNALING_LOCAL_UID, token, &s_rtm_handler);
+    /* 3. Signaling login */
+    ret = agora_rtc_login_rtm(s_local_uid, s_token, &s_rtm_handler);
     if (ret < 0) {
         ESP_LOGE(TAG, "agora_rtc_login_rtm failed err=%d (%s)",
                  ret, agora_rtc_err_2_str(ret));

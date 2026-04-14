@@ -60,23 +60,29 @@ Copy `sdkconfig.defaults` and fill in your credentials before building.
 # sdkconfig.defaults
 
 CONFIG_AGORA_APP_ID="<your-agora-app-id>"
-CONFIG_AGORA_SIGNALING_TOKEN="<signaling-token-for-this-device>"
-CONFIG_AGORA_SIGNALING_LOCAL_UID="device_a"   # identity of this device
-CONFIG_AGORA_SIGNALING_REMOTE_UID="device_b"  # peer to send to / receive from
+
+# Both tokens live in the build so you can flash both boards without
+# touching sdkconfig in between — only change DEVICE_ID between flashes.
+CONFIG_AGORA_SIGNALING_UID_A="device_a"
+CONFIG_AGORA_SIGNALING_UID_B="device_b"
+CONFIG_AGORA_SIGNALING_TOKEN_A="<signaling-token-for-device_a>"
+CONFIG_AGORA_SIGNALING_TOKEN_B="<signaling-token-for-device_b>"
+CONFIG_AGORA_SIGNALING_DEVICE_ID="A"   # "A" for first board, "B" for second
+
 CONFIG_DEMO_WIFI_SSID="<your-ssid>"
 CONFIG_DEMO_WIFI_PASSWORD="<your-password>"
 ```
 
-### Generate Signaling tokens with `atem`
+### Generate both Signaling tokens with `atem`
 
-Signaling tokens expire after **3600 s**. Regenerate before each flash session:
+Signaling tokens expire after **3600 s**, but you only need to generate them **once per session** — then you can flash both boards without regenerating.
 
 ```bash
-atem token rtm create --rtm-user-id device_a   # for the first device
-atem token rtm create --rtm-user-id device_b   # for the second device
+atem token rtm create --rtm-user-id device_a   # → TOKEN_A
+atem token rtm create --rtm-user-id device_b   # → TOKEN_B
 ```
 
-Paste each token into the matching `sdkconfig.defaults` before building.
+Paste both tokens into `sdkconfig.defaults`.
 
 ### How tokens and login work
 
@@ -96,7 +102,7 @@ sequenceDiagram
     Atem-->>Dev: Token string
 
     Note over Dev,Device: 2. Embed token in firmware and flash
-    Dev->>Device: sdkconfig: APP_ID, UID, TOKEN → idf.py flash
+    Dev->>Device: sdkconfig: APP_ID, UID_A/B, TOKEN_A/B, DEVICE_ID → idf.py flash
 
     Note over Device,Agora: 3. Boot-time login (signaling_demo.c)
     Device->>Device: WiFi STA connect
@@ -114,7 +120,7 @@ sequenceDiagram
 
 **Common login failures**:
 - Token expired (TTL 3600 s) → regenerate with `atem`
-- UID in `CONFIG_AGORA_SIGNALING_LOCAL_UID` doesn't match the UID the token was issued for
+- `DEVICE_ID` doesn't match a filled-in token (e.g. `DEVICE_ID="B"` but `TOKEN_B` is empty)
 - App ID mismatch between the token and `CONFIG_AGORA_APP_ID`
 
 ## Building
@@ -132,26 +138,24 @@ idf.py build
 
 ## Running two devices
 
-### Flash device A (`/dev/ttyUSB0`)
+With both tokens already in `sdkconfig.defaults`, the only thing that changes between the two flashes is `CONFIG_AGORA_SIGNALING_DEVICE_ID`.
 
-Set `sdkconfig.defaults`:
+### Flash board 1 as UID A (`/dev/ttyUSB0`)
+
 ```ini
-CONFIG_AGORA_SIGNALING_LOCAL_UID="device_a"
-CONFIG_AGORA_SIGNALING_REMOTE_UID="device_b"
-CONFIG_AGORA_SIGNALING_TOKEN="<device_a token>"
+# sdkconfig.defaults
+CONFIG_AGORA_SIGNALING_DEVICE_ID="A"
 ```
 
 ```bash
 rm sdkconfig && idf.py -p /dev/ttyUSB0 build flash
 ```
 
-### Flash device B (`/dev/ttyUSB1`)
+### Flash board 2 as UID B (`/dev/ttyUSB1`)
 
-Update `sdkconfig.defaults`:
 ```ini
-CONFIG_AGORA_SIGNALING_LOCAL_UID="device_b"
-CONFIG_AGORA_SIGNALING_REMOTE_UID="device_a"
-CONFIG_AGORA_SIGNALING_TOKEN="<device_b token>"
+# sdkconfig.defaults
+CONFIG_AGORA_SIGNALING_DEVICE_ID="B"
 ```
 
 ```bash
